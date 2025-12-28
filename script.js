@@ -1,40 +1,43 @@
-document.addEventListener('DOMContentLoaded', function () {
-    // Mobile Menu Toggle
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Mobile Menu ---
     const mobileBtn = document.querySelector('.mobile-menu-btn');
     const nav = document.querySelector('.nav');
 
-    if (mobileBtn) {
+    if (mobileBtn && nav) {
         mobileBtn.addEventListener('click', () => {
-            nav.classList.toggle('active');
-            const icon = mobileBtn.querySelector('i');
-            if (nav.classList.contains('active')) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times');
+            const isVisible = nav.style.display === 'flex';
+            if (isVisible) {
+                nav.style.display = '';
+                nav.classList.remove('active');
             } else {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
+                nav.style.display = 'flex';
+                nav.style.flexDirection = 'column';
+                nav.style.position = 'absolute';
+                nav.style.top = '100%';
+                nav.style.left = '0';
+                nav.style.width = '100%';
+                nav.style.backgroundColor = 'rgba(5, 10, 8, 0.98)';
+                nav.style.padding = '2rem';
+                nav.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
+                nav.classList.add('active');
             }
         });
     }
 
-    // Smooth Scroll for Anchor Links
+    // --- Smooth Scroll ---
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
-
-            // Close mobile menu if open
-            if (nav.classList.contains('active')) {
-                nav.classList.remove('active');
-                const icon = mobileBtn.querySelector('i');
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            }
-
             const targetId = this.getAttribute('href');
             if (targetId === '#') return;
 
             const targetElement = document.querySelector(targetId);
             if (targetElement) {
+                if (nav && nav.classList.contains('active')) {
+                    nav.style.display = '';
+                    nav.classList.remove('active');
+                }
+
                 const headerOffset = 80;
                 const elementPosition = targetElement.getBoundingClientRect().top;
                 const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
@@ -47,23 +50,35 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Accordion Functionality
-    const accordionHeaders = document.querySelectorAll('.accordion-header');
+    // --- Navbar Scroll Effect ---
+    const header = document.querySelector('.header');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    });
 
-    accordionHeaders.forEach(header => {
-        header.addEventListener('click', () => {
-            const item = header.parentElement;
-            const isActive = item.classList.contains('active');
+    // --- Scroll Reveal Animation ---
+    const reveals = document.querySelectorAll('.service-block, .feature-item, .contact-box, .section-header');
 
-            // Close all other items
-            document.querySelectorAll('.accordion-item').forEach(otherItem => {
-                otherItem.classList.remove('active');
-            });
+    // Add 'reveal' class to elements initially
+    reveals.forEach(el => el.classList.add('reveal'));
 
-            // Toggle current item
-            if (!isActive) {
-                item.classList.add('active');
+    const revealOnScroll = () => {
+        const windowHeight = window.innerHeight;
+        const elementVisible = 100;
+
+        reveals.forEach((reveal) => {
+            const elementTop = reveal.getBoundingClientRect().top;
+            if (elementTop < windowHeight - elementVisible) {
+                reveal.classList.add('active');
             }
         });
-    });
+    };
+
+    window.addEventListener('scroll', revealOnScroll);
+    // Trigger once on load
+    revealOnScroll();
 });
